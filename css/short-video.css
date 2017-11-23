@@ -1,0 +1,62 @@
+html, body, div, form, p, a, h1, h2, h3, h4, h5, h6, img, table, td, th, input, span, section, header, footer, nav, article, aside, fieldset, textarea, dl, dt, dd, blockquote, ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none; }
+
+html, body {
+  height: 100%;
+  width: 100%; }
+
+.clearfix {
+  zoom: 1; }
+
+.clearfix:after {
+  content: '';
+  display: block;
+  clear: both; }
+
+.video-container {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  background-color: #000; }
+
+.video-progress {
+  padding: 0 0.9375rem;
+  margin-top: 0.625rem;
+  position: relative;
+  z-index: 500; }
+  .video-progress li {
+    width: 30%;
+    height: 3px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+    margin-top: 5px;
+    margin-left: 5px;
+    float: left;
+    overflow: hidden; }
+    .video-progress li span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: 2px;
+      background-color: #eee; }
+    .video-progress li:first-of-type {
+      margin-left: 0; }
+
+.video-preview {
+  position: absolute;
+  top: 0;
+  left: 0; }
+
+#media {
+  position: absolute;
+  max-width: 100%;
+  width: 100%;
+  max-height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); }
+
+/*# sourceMappingURL=short-video.css.map */

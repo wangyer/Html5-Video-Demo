@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>shortVideo</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/short-video.css">
+    <script type="text/javascript" src="js/json.js"></script>
+    <script src="http://you.autohome.com.cn/assets/js/lib/jquery/jquery.min.v2.1.4.js"></script>
+	<script src="http://you.autohome.com.cn/assets/js/lib/vue/vue.min.v2.1.8.js"></script>
+</head>
+<body >
+	<div id="app">
+		<div class="video-container" :style="{width: screenWidth  + 'px', height: screenHeight  + 'px'}" @click="triggerVideo">
+			<ul class="video-progress clearfix">
+				<li v-for="(i, index) in playDataLength" :style="{width: progressItemWidth + 'px'}">
+					<span :style="{width: recordProgress[index] + 'px'}"></span>
+				</li>
+			</ul>
+			<div class="video-preview" :style="{width: screenWidth  + 'px', height: screenHeight  + 'px'}">
+				<video id="media"
+				       :src="playData[currentPlayIndex].videoUrl"
+				       :poster="playData[currentPlayIndex].posterUrl"
+				       preload
+				       playsinline
+				       webkit-playsinline
+				       x5-playsinline
+				       x5-video-player-type="h5"
+				       x5-vide
+	                   o-player-fullscreen="true">
+					your browser does not support the video tag
+	            </video>
+			</div>
+		</div>
+	</div>
+	<script>
+		var app = new Vue({
+			el: "#app",
+			data: {
+				screenWidth: 0,
+				screenHeight: 0,
+				playData: data.result.dataList.dataSource,
+				currentPlayIndex: 0,
+				playDataLength: 0,
+				progressWidth: 0,
+				progressItemWidth: 0,
+				step: 5,
+				recordProgress: [],
+				sTime: 0,
+				timer: null
+			},
+			methods: {
+				init: function () {
+					this.playDataLength = this.playData.length;
+					for (var i = 0; i < this.playDataLength; i++) {
+						this.recordProgress.push(0);
+					}
+					this.screenWidth = $(window).width();
+					this.screenHeight = $(window).height();
+					this.initProgress();
+				},
+				initProgress: function () {
+					this.progressWidth = parseInt($('.video-progress').eq(0).width())
+					if (this.playDataLength > 1) {
+						this.progressItemWidth = (this.progressWidth - (this.playDataLength - 1) * this.step) / this.playDataLength;
+					} else {
+						this.progressItemWidth = this.progressWidth;
+					}
+				},
+				setProgress: function () {
+					var Media = document.getElementById('media');
+					var duration = this.playData[this.currentPlayIndex].playTime;
+					var currentPlayTime = this.recordProgress[ this.currentPlayIndex];
+					var _this = this;
+					this.sTime = duration / this.progressItemWidth * 1000;
+					this.timer = setInterval(function () {
+						 Vue.set(_this.recordProgress, _this.currentPlayIndex, ++currentPlayTime);
+					}, _this.sTime);
+					Media.onended = function () {
+						clearInterval(_this.timer);
+						if(_this.playDataLength - 1 > _this.currentPlayIndex){
+							_this.currentPlayIndex++;
+						}
+					}
+				},
+				playVideo: function () {
+					var Media = document.getElementById('media');
+					var _this = this;
+					Media.play();
+					_this.setProgress();
+				},
+				pauseVideo: function () {
+					var Media = document.getElementById('media');
+					var _this = this;
+					Media.pause();
+					if (Media.paused) {
+						clearInterval(_this.timer);
+					}
+				},
+				triggerVideo: function () {
+					var Media = document.getElementById('media');
+					var container = $('.video-container').eq(0);
+					var _this = this;
+					if(Media.paused){
+						this.playVideo();
+					}else{
+						this.pauseVideo();
+					}
+				}
+			},
+			created: function () {
+				this.init();
+			}
+		});
+	</script>
+</body>
+</html>
