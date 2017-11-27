@@ -14,7 +14,7 @@
 </head>
 <body >
 	<div id="app">
-		<div class="video-container" :style="{width: screenWidth  + 'px', height: screenHeight  + 'px'}" @click="triggerVideo">
+		<div class="video-container" :style="{width: screenWidth  + 'px', height: screenHeight  + 'px'}">
 			<ul class="video-progress clearfix">
 				<li v-for="(i, index) in playDataLength" :style="{width: progressItemWidth + 'px'}">
 					<span :style="{width: recordProgress[index] + 'px'}"></span>
@@ -33,9 +33,12 @@
 	                   o-player-fullscreen="true">
 					your browser does not support the video tag
 	            </video>
+	            <div class="video-mask" @click="triggerVideo"></div>
 			</div>
 		</div>
 	</div>
+	<script src="//cdn.jsdelivr.net/eruda/1.2.2/eruda.min.js"></script>
+<script>eruda.init();</script>
 	<script>
 		var app = new Vue({
 			el: "#app",
@@ -50,7 +53,9 @@
 				step: 5,
 				recordProgress: [],
 				sTime: 0,
-				timer: null
+				timer: null,
+				isHandle: false,
+				currentTime: 0
 			},
 			methods: {
 				init: function () {
@@ -61,6 +66,7 @@
 					this.screenWidth = $(window).width();
 					this.screenHeight = $(window).height();
 					this.initProgress();
+					this.setProgress();
 				},
 				initProgress: function () {
 					this.progressWidth = parseInt($('.video-progress').eq(0).width())
@@ -70,27 +76,46 @@
 						this.progressItemWidth = this.progressWidth;
 					}
 				},
-				setProgress: function () {
+				setProgress: function (bool) {
 					var Media = document.getElementById('media');
-					var duration = this.playData[this.currentPlayIndex].playTime;
-					var currentPlayTime = this.recordProgress[ this.currentPlayIndex];
+					var duration = bool ? this.playData[this.currentPlayIndex].playTime : 3;
+					var currentPlayTime = this.recordProgress[this.currentPlayIndex];
 					var _this = this;
+
 					this.sTime = duration / this.progressItemWidth * 1000;
 					this.timer = setInterval(function () {
-						 Vue.set(_this.recordProgress, _this.currentPlayIndex, ++currentPlayTime);
-					}, _this.sTime);
-					Media.onended = function () {
-						clearInterval(_this.timer);
-						if(_this.playDataLength - 1 > _this.currentPlayIndex){
-							_this.currentPlayIndex++;
+						if (_this.isHandle) {
+							_this.currentTime = Media.currentTime.toFixed(1);
+							currentPlayTime = _this.currentTime * _this.progressItemWidth / duration;
+						} else {
+							++currentPlayTime
 						}
-					}
+						Vue.set(_this.recordProgress, _this.currentPlayIndex, currentPlayTime);
+						if (_this.progressItemWidth < currentPlayTime) {
+							clearInterval(_this.timer);
+							if (_this.playDataLength - 1 > _this.currentPlayIndex) {
+								++_this.currentPlayIndex;
+								_this.isHandle = false;
+								_this.currentTime = 0;
+								_this.setProgress();
+							}
+						}
+					}, _this.sTime);
+
+					Media.addEventListener("pause", function(){
+					   	clearInterval(_this.timer);
+					});
 				},
 				playVideo: function () {
 					var Media = document.getElementById('media');
 					var _this = this;
 					Media.play();
-					_this.setProgress();
+					if (!this.isHandle) {
+						clearInterval(_this.timer);
+						this.isHandle = true;
+						Vue.set(_this.recordProgress, _this.currentPlayIndex, 0);
+					}
+					_this.setProgress(true);
 				},
 				pauseVideo: function () {
 					var Media = document.getElementById('media');
