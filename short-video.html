@@ -91,7 +91,7 @@
 							++currentPlayTime
 						}
 						Vue.set(_this.recordProgress, _this.currentPlayIndex, currentPlayTime);
-						if (_this.progressItemWidth < currentPlayTime) {
+						if (_this.progressItemWidth <= currentPlayTime) {
 							clearInterval(_this.timer);
 							if (_this.playDataLength - 1 > _this.currentPlayIndex) {
 								++_this.currentPlayIndex;
